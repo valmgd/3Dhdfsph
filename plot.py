@@ -119,7 +119,13 @@ class Particles :
 
         # évolution de la pression particule centrale
         file_name =  glob.glob('Solid_Kinematics*.csv')
-        self.Pt = np.loadtxt(file_name[0], delimiter=',', skiprows=1)
+        self.solid_kinematics = np.loadtxt(file_name[0], delimiter=',', skiprows=1)
+        self.evolutif = (len(np.shape(self.solid_kinematics)) == 2)
+        print(self.evolutif)
+        if self.evolutif :
+            self.time = self.solid_kinematics[:, 0]
+            self.Pt = self.solid_kinematics[:, 24]
+        #}
 
         # ---------------------------------------------------------------------------------------------------
         # post-traitement
@@ -173,14 +179,14 @@ class Particles :
     # -------------------------------------------------------------------------------------------------------
     def plot_P(self) :
         """Plot l'évolution de la pression de la particule centrale au cours du temps."""
-        if len(np.shape(self.Pt)) == 1 :
-            return(0, 0)
-        #}
-        tf = self.Pt[-1, 0]
+
+        tf = self.time[-1]
         fig, ax = plt.subplots()
-        ax.plot(self.Pt[:, 0], self.Pt[:, 24], label='Pression', linewidth=0.25)
+        ax.plot(self.time, self.Pt, label='Pression', linewidth=0.25)
 
         ax.set_xlim((0., tf))
+        # ax.set_ylim((min(self.Pt), max(self.Pt)))
+        ax.set_ylim((-50, 50))
         ax.set_xlabel('$t$ [s]')
         ax.set_ylabel('$P$ [Pa]')
         ax.set_title('Évolution de la pression')
@@ -227,7 +233,7 @@ class Particles :
         # table de courbure et erreur relative
         print(' _______________________________________')
         print('|         |         |         |         |')
-        print('|         ', '|   min   ', '|  mean   ', '|   max   ', '|', sep='')
+        print('|         |   min   |  mean   |   max   |')
         print('|_________|_________|_________|_________|')
         print('|         |         |         |         |')
         print('| kappa   | %7.3f | %7.3f | %7.3f |' % (np.min(self.kappa[self.ic]), np.mean(self.kappa[self.ic]), np.max(self.kappa[self.ic])))
