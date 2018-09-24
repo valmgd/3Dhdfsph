@@ -1,3 +1,11 @@
+# -----------------------------------------------------------------------------------------------------------
+# Objet Particles.
+#
+# État du nuage de particules à un temps fixé.
+# -----------------------------------------------------------------------------------------------------------
+
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -35,13 +43,25 @@ def norm(x, y, z) :
 
 class Particles :
     """Classe Particles.
-    Coordonnées, variables du système de N-S, tension de surface."""
+
+    Coordonnées, variables du système de N-S, tension de surface, etc.
+    Permet un post-traitement pour évaluer la qualité des simulations SPH-Flow, en particulier pour le
+    terme de tension de surface.
+    
+    Lecture d'un fichier h5 à un temps donné. On peut créer une liste d'objets pour avoir l'évolution en
+    temps.
+    
+    Lecture du fichier Solid_Kinematics.csv pour évolution de la pression d'une particule au cours du
+    temps."""
 
     # -------------------------------------------------------------------------------------------------------
     # constructeur
     # -------------------------------------------------------------------------------------------------------
     def __init__(self, path_h5file) :
-        """Constructeur. Lecture des fichiers h5"""
+        """Constructeur. Lecture des fichiers h5.
+        
+        Synopsis :
+        x = Particles('chemin/vers/fichier/bulleX.h5')"""
         # ---------------------------------------------------------------------------------------------------
         # pré-traitement
         # ---------------------------------------------------------------------------------------------------
@@ -70,7 +90,7 @@ class Particles :
         self.point_size = 5
         self.scale = 0.005
         self.scale2 = 0.05
-        self.png = False
+        self.png = True
 
         # ---------------------------------------------------------------------------------------------------
         # lecture des données
@@ -120,11 +140,13 @@ class Particles :
         # évolution de la pression particule centrale
         file_name =  glob.glob('Solid_Kinematics*.csv')
         self.solid_kinematics = np.loadtxt(file_name[0], delimiter=',', skiprows=1)
+        self.fluid_conservation = np.loadtxt('FluidConservation.csv', delimiter=',', skiprows=1)
+
         self.evolutif = (len(np.shape(self.solid_kinematics)) == 2)
-        print(self.evolutif)
         if self.evolutif :
-            self.time = self.solid_kinematics[:, 0]
-            self.Pt = self.solid_kinematics[:, 24]
+            self.time = self.solid_kinematics[:-5, 0]
+            self.Pt = self.solid_kinematics[:-5, 24]
+            self.EC = self.fluid_conservation[:-5, 3]
         #}
 
         # ---------------------------------------------------------------------------------------------------
@@ -186,12 +208,32 @@ class Particles :
 
         ax.set_xlim((0., tf))
         # ax.set_ylim((min(self.Pt), max(self.Pt)))
-        ax.set_ylim((-50, 50))
+        # ax.set_ylim((-50, 50))
         ax.set_xlabel('$t$ [s]')
         ax.set_ylabel('$P$ [Pa]')
         ax.set_title('Évolution de la pression')
 
         self.save_figure(fig, 'Pt')
+
+        return(fig, ax)
+    #}
+
+    # -------------------------------------------------------------------------------------------------------
+    # plot énergie cinétique
+    # -------------------------------------------------------------------------------------------------------
+    def plot_EC(self) :
+        """Plot l'évolution de la pression de la particule centrale au cours du temps."""
+
+        tf = self.time[-1]
+        fig, ax = plt.subplots()
+        ax.plot(self.time, self.EC, label='Pression', linewidth=1, c='orangered')
+
+        ax.set_xlim((0., tf))
+        ax.set_xlabel('$t$ [s]')
+        ax.set_ylabel('$EC$')
+        ax.set_title('Évolution de l\'énergie cinétique')
+
+        self.save_figure(fig, 'EC')
 
         return(fig, ax)
     #}

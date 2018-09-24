@@ -1,10 +1,17 @@
 #!/home/vmagda/.anaconda3/bin/python
 
+# -----------------------------------------------------------------------------------------------------------
+# Programme de post-traitement pour évaluation de la qualité du modèle de tension de surface.
+# Données issues de simu SPH-Flow en 3D.
+#
+# Stage avril-septembre 2018.
+# -----------------------------------------------------------------------------------------------------------
+
 # python packages
 import sys
 
 # personnal sources
-from plot import *
+from plot import Particles
 
 
 
@@ -24,6 +31,7 @@ part = Particles(path_to_h5)
 # -----------------------------------------------------------------------------------------------------------
 if part.evolutif :
     part.plot_P()
+    part.plot_EC()
 #}
 
 
