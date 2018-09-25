@@ -65,21 +65,25 @@ class Particles :
         # ---------------------------------------------------------------------------------------------------
         # pré-traitement
         # ---------------------------------------------------------------------------------------------------
-        path_list = path_h5file.split('/')
-        # nom du fichier h5 demandé par l'utilisateur
-        self.user_h5 = path_list[-1]
-        # suffixe pour noms des graphes
-        self.suf = '-'.join([path_list[-3], path_list[-2]])
         # chemin d'accès aux données
-        self.dir = '/'.join(path_list[0:-1])
+        self.dir = os.path.dirname(os.path.realpath(path_h5file))
         os.chdir(self.dir)
+        dir_list = self.dir.split('/')
+        # nom du fichier h5 demandé par l'utilisateur
+        self.user_h5 = path_h5file.split('/')[-1]
+        # graph name suffix based on directory structure
+        self.suf = '-'.join([dir_list[-2], dir_list[-1]])
         # chemin d'accès aux graphes
-        self.graphs = '/'.join(path_list[0:-4]) + '/graphs'
-
+        self.graphs = '/'.join(dir_list[0:-3]) + '/graphs'
         # liste des fichier h5
         self.h5 = glob.glob('*.h5')
         # nombre de fichier h5
         self.nh5 = len(self.h5)
+
+        print('# data directory     :', self.dir)
+        print('# h5 file name       :', self.user_h5)
+        print('# graphs path        :', self.graphs)
+        print('# graphs name suffix :', self.suf)
 
         # ensemble des données du fichier h5
         self.data = h5py.File(self.user_h5, 'r')
@@ -138,15 +142,37 @@ class Particles :
         self.rel = norm( self.mvx , self.mvy , self.mvz ) / norm( self.wGRPx , self.wGRPy , self.wGRPz )
 
         # évolution de la pression particule centrale
-        file_name =  glob.glob('Solid_Kinematics*.csv')
-        self.solid_kinematics = np.loadtxt(file_name[0], delimiter=',', skiprows=1)
-        self.fluid_conservation = np.loadtxt('FluidConservation.csv', delimiter=',', skiprows=1)
+        file_sk =  glob.glob('Solid_Kinematics*')
+        # présence du fichier Solid_Kinematics* (booléen)
+        self.has_sk = (len(file_sk) >= 1)
+        if self.has_sk :
+            file_sk = file_sk[0]
+        #}
 
-        self.evolutif = (len(np.shape(self.solid_kinematics)) == 2)
-        if self.evolutif :
-            self.time = self.solid_kinematics[:-5, 0]
-            self.Pt = self.solid_kinematics[:-5, 24]
-            self.EC = self.fluid_conservation[:-5, 3]
+        file_fc = glob.glob('FluidConservation*')[0]
+        if file_fc[-3:] == 'csv' :
+            delim = ','
+            skip = 1
+        elif file_fc[-3:] == 'dat' :
+            delim = '  '
+            skip = 7
+        #}
+
+        self.fluid_conservation = np.loadtxt(file_fc, delimiter=delim, skiprows=skip)
+
+
+        # simulation sur + de 1 pas de temps ? (booléen)
+        self.evolutif = False
+
+        if self.has_sk :
+            self.solid_kinematics   = np.loadtxt(file_sk, delimiter=delim, skiprows=1)
+            # simulation sur + de 1 pas de temps ? (booléen)
+            self.evolutif = (len(np.shape(self.solid_kinematics)) == 2)
+            if self.evolutif :
+                self.time = self.solid_kinematics[:-5, 0]
+                self.Pt = self.solid_kinematics[:-5, 24]
+                self.EC = self.fluid_conservation[:-5, 3]
+            #}
         #}
 
         # ---------------------------------------------------------------------------------------------------
