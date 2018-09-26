@@ -65,10 +65,50 @@ if part.evolutif :
 # Infos
 # -----------------------------------------------------------------------------------------------------------
 part.info_simu()
+# self.ic = [i for i, elt in enumerate(self.kappa) if elt > 1]
+Rdx = 4.0
+dx = 0.0001
+R = Rdx * dx
+
+zmin = min(part.z)
+zmax = max(part.z)
+z0 = (zmin + zmax) / 2.0
+zint = abs(zmax - zmin)
+a = z0 - 0.02 * zint
+b = z0 + 0.02 * zint
+rayon = 0.005
+
+anneau = list()
+for i in range(len(part.x)) :
+    if a <= part.z[i] <= b and rayon-R <= np.sqrt(part.x[i]**2+part.y[i]**2) <= rayon :
+        anneau.append(i)
+    #}
+#}
+
+autre = [i for i, elt in enumerate(part.x) if i not in anneau]
+
+np.set_printoptions(threshold=np.nan)
+print(part.kappa[anneau])
+
+fig, ax = part.plot_part()
+# ax.scatter(part.x[autre], part.y[autre], part.z[autre])
+ax.scatter(part.x[anneau], part.y[anneau], part.z[anneau], c='red')
+
+# ax.set_xlim((-zint/2, zint/2))
+# ax.set_ylim((-zint/2, zint/2))
+# ax.set_zlim((-1, -1+zint))
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+
+
+print(min(part.x), max(part.x))
+print(min(part.y), max(part.y))
+print(min(part.z), max(part.z))
 
 
 
 
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# plt.show()
+plt.show()
