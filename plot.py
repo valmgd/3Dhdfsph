@@ -271,7 +271,7 @@ class Particles :
     def plot_part(self) :
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(self.x, self.y, self.z)
+        # ax.scatter(self.x, self.y, self.z)
         return(fig, ax)
     #}
 

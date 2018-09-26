@@ -66,21 +66,22 @@ if part.evolutif :
 # -----------------------------------------------------------------------------------------------------------
 part.info_simu()
 # self.ic = [i for i, elt in enumerate(self.kappa) if elt > 1]
-Rdx = 4.0
-dx = 0.0001
+
+Rdx = 3.0
+dx = 0.0002
 R = Rdx * dx
 
 zmin = min(part.z)
 zmax = max(part.z)
 z0 = (zmin + zmax) / 2.0
 zint = abs(zmax - zmin)
-a = z0 - 0.02 * zint
-b = z0 + 0.02 * zint
+a = z0 - 0.2 * zint
+b = z0 + 0.2 * zint
 rayon = 0.005
 
 anneau = list()
 for i in range(len(part.x)) :
-    if a <= part.z[i] <= b and rayon-R <= np.sqrt(part.x[i]**2+part.y[i]**2) <= rayon :
+    if a <= part.z[i] <= b and rayon-R <= np.sqrt(part.x[i]**2+part.y[i]**2+part.z[i]**2) <= rayon :
         anneau.append(i)
     #}
 #}
