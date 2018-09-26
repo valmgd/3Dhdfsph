@@ -11,14 +11,15 @@ import numpy as np
 import os
 import glob
 import h5py
+from mpl_toolkits.mplot3d import Axes3D
 
 
 
 def head_tail(vec) :
     """Affiche début et fin d'un vecteur."""
-    chaine = '[ ' + str(vec[0]) + '   ' + str(vec[1]) + '   ' + str(vec[2])
+    chaine = '[ ' + '   '.join(vec[:3])
     chaine += '   ...   '
-    chaine += str(vec[-3]) + '   ' + str(vec[-2]) + '   ' + str(vec[-1]) + ' ]'
+    chaine += '   '.join(vec[-3:]) + ' ]'
 
     return(chaine)
 #}
@@ -190,21 +191,21 @@ class Particles :
         chaine  = 'Read from files :'
         chaine += '\nx     : ' + head_tail(self.x)
         chaine += '\ny     : ' + head_tail(self.y)
-        chaine += '\ny     : ' + head_tail(self.z)
+        chaine += '\nz     : ' + head_tail(self.z)
         chaine += '\nvx    : ' + head_tail(self.vx)
         chaine += '\nvy    : ' + head_tail(self.vy)
-        chaine += '\nvy    : ' + head_tail(self.vz)
+        chaine += '\nvz    : ' + head_tail(self.vz)
         chaine += '\nP     : ' + head_tail(self.P)
         chaine += '\nkappa : ' + head_tail(self.kappa)
         chaine += '\nmvx   : ' + head_tail(self.mvx)
         chaine += '\nmvy   : ' + head_tail(self.mvy)
-        chaine += '\nmvy   : ' + head_tail(self.mvz)
+        chaine += '\nmvz   : ' + head_tail(self.mvz)
         chaine += '\nFTSx  : ' + head_tail(self.FTSx)
         chaine += '\nFTSy  : ' + head_tail(self.FTSy)
-        chaine += '\nFTSy  : ' + head_tail(self.FTSz)
+        chaine += '\nFTSz  : ' + head_tail(self.FTSz)
         chaine += '\nwGRPx : ' + head_tail(self.wGRPx)
         chaine += '\nwGRPy : ' + head_tail(self.wGRPy)
-        chaine += '\nwGRPy : ' + head_tail(self.wGRPz)
+        chaine += '\nwGRPz : ' + head_tail(self.wGRPz)
         chaine += '\nw     : ' + head_tail(self.w)
 
         return(chaine)
@@ -261,6 +262,16 @@ class Particles :
 
         self.save_figure(fig, 'EC')
 
+        return(fig, ax)
+    #}
+
+    # -------------------------------------------------------------------------------------------------------
+    # plot nuage de particules
+    # -------------------------------------------------------------------------------------------------------
+    def plot_part(self) :
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(self.x, self.y, self.z)
         return(fig, ax)
     #}
 
